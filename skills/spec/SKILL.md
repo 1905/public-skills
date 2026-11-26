@@ -13,7 +13,7 @@ plans/
   YYYY-MM-DD-<feature>/   # feature = short kebab-case slug you pick
     idea.md
     spec.md
-    plan-v1.0.md        # written by /plan, never by /spec
+    plan-v1.0.md        # written by the plan skill, never by spec
     plan-v1.1.md
   done/                 # finished features move here wholesale
 ```
@@ -24,23 +24,25 @@ If a dir for the same in-flight effort already exists, continue in it. Otherwise
 
 Every file carries a `**Status:**` line. Update it the moment a stage completes. Never leave it stale.
 
+These files stay uncommitted until the plan skill's Exec step commits them on the feature branch.
+
 ## Who writes the draft
 
-A subagent writes the first draft, so the main thread stays free for questions and approval. See `docs/delegation.md` in this repo for how to dispatch.
+The main thread writes `idea.md` and runs the brainstorm. A subagent writes the first `spec.md` draft, so the main thread stays free for questions and approval. See `delegation.md` next to this file for how to dispatch.
 
 - Default writer: the strongest model you have. The user can name another model or effort ("spec with model X, high effort").
-- Resolve the exact model ID from the live catalog. Do not silently replace a requested model or effort. If it's unavailable, say so.
-- Give the child a complete brief: feature dir, repo root, confirmed requirements, required sections (below), allowed edits. Ask it to write `idea.md` and `spec.md` and return the path plus the `## TL;DR` section. Tell it to start no subagents.
-- The drafting child does the first self-check.
+- On hosts with a model catalog, resolve the exact model ID from it. Do not silently replace a requested model or effort. If it's unavailable, say so.
+- Give the child a complete brief: feature dir, repo root, path to `idea.md`, the requirements confirmed in the brainstorm, the required sections (below), allowed edits. Ask it to write only `spec.md` and return the path plus the `## TL;DR` section. Tell it to start no subagents.
+- The drafting child does the first self-check (step 4).
 - Later edits and review fixes use the current session model, in the main thread.
-- When presenting for approval, say which model wrote the draft.
+- When presenting for approval, say which model wrote the draft, or that it is unverified.
 - No subagent tool available → write the draft in the main thread.
 
 ## Steps
 
-1. **idea.md.** Capture the raw idea before shaping it: 3-10 lines — what the user asked for, why now, first-guess scope. Header: `**Date:** YYYY-MM-DD`, `**Status:** draft`. When the brainstorm below confirms intent, set `**Status:** done`.
-2. **Brainstorm.** One question at a time, multiple-choice when possible. Grep the codebase BEFORE asking — the answer may already be in the repo. Grep findings become the file:line citations in the spec's Problem(s). If the request already pins purpose, constraints and success criteria, confirm your reading in one message instead of a full brainstorm. Do not propose a design until all three are clear.
-3. **spec.md** with exactly these sections:
+1. **idea.md** (main thread). Capture the raw idea before shaping it: 3-10 lines — what the user asked for, why now, first-guess scope. Header: `**Date:** YYYY-MM-DD`, `**Status:** draft`.
+2. **Brainstorm** (main thread). One question at a time, multiple-choice when possible. Grep the codebase BEFORE asking — the answer may already be in the repo. Grep findings become the file:line citations in the spec's Problem(s). If the request already pins purpose, constraints and success criteria, confirm your reading in one message instead of a full brainstorm. Do not propose a design until all three are clear. Then set `idea.md` to `**Status:** done`.
+3. **spec.md** (drafting subagent) with exactly these sections:
    - `# Title` + `**Date:**` / `**Scope:** <project path>` / `**Status:** pending review`
    - `## TL;DR` — FIRST section, and the only one the user must read before approving. One block per feature/phase, each ≤5 lines: **what** changes (one sentence, plain words), **why** (the failure it fixes), **what the user must decide or do** (rotations, approvals, data — or "nothing"), **what it does NOT do**. Four phases → four blocks. A user who reads only this section must not be surprised later by what got built.
    - `## Problem(s)` — numbered; 2-4 sentences each + file:line citation
@@ -51,10 +53,10 @@ A subagent writes the first draft, so the main thread stays free for questions a
    - `## Tests` — unit / integration / manual, grouped by file or behaviour
    - `## Failure modes & decisions` — table: failure → behaviour
    - `## Out of scope` — explicit list
-   - `## Rollout` — phases P1, P2…, one line each; each phase = one commit gated on clean review
+   - `## Rollout` — phases P1, P2…, one line each. Each phase is a group of plan tasks that ends with a green build and tests. One independent review of the whole branch runs at the end, not per phase.
 4. **Self-review, fix in place** (one pass, no loop): no TBD/TODO placeholders; sections don't contradict; scoped to ONE plan (split if not); no requirement readable two ways. A truly unresolvable ambiguity is a brainstorm question — ask it, don't guess.
 5. **User approval.** Present the spec path and paste the `## TL;DR` section VERBATIM in chat. It is the approval surface. STOP until the user approves.
-   - Approved → `**Status:** approved`, hand off to `/plan`.
+   - Approved → `**Status:** approved`, hand off to the `plan` skill.
    - Edits requested → fix spec.md in place (no versioning at spec stage; still `pending review`).
    - Scope change → back to brainstorming.
    - If the user later says "I thought we were only building X", the TL;DR was wrong. Fix the process, not the user.

@@ -1,7 +1,7 @@
 # Delegating to subagents
 
 The `spec`, `plan`, `hill-climb` and `fullsend` skills hand some work to subagents.
-This file says how. It works with any host; T3 Code is optional.
+This file says how. Each skill directory has an identical copy, so a skill works when installed alone.
 
 ## Pick the tool
 
@@ -22,6 +22,15 @@ Never claim a review was independent when the main thread did it.
 7. Check the provider and model the result reports. A mismatch is a failed task.
 
 Follow the result's `next` instruction. When completion wakes the parent, do not poll or sleep-loop.
+
+## With a native subagent tool
+
+Native tools usually have no model catalog, no per-child effort option and no report of the model that ran.
+
+- Pass a model only through the tool's own model parameter, if it has one. Use the values that parameter accepts.
+- If the tool can't select the model or effort you need, say so in your report. Do not pretend you selected it.
+- If the tool reports no model, state that the executed model is unverified. Do not fail the task for that reason alone.
+- Run independent subagents in parallel when the tool allows it.
 
 ## Write a complete brief
 
