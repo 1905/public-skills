@@ -1,6 +1,6 @@
 # public-skills
 
-Four agent skills for planned, reviewed feature work: write a spec, plan it, build it on a branch, and have independent models review it.
+Agent skills for planned, reviewed feature work: write a spec, plan it, build it on a branch, and have independent models review it. Plus Anthropic's `frontend-design` skill for HTML reports and pages.
 They are written for Claude Code and work in other hosts that read `SKILL.md` files.
 
 | Skill | What it does | You get |
@@ -9,13 +9,14 @@ They are written for Claude Code and work in other hosts that read `SKILL.md` fi
 | [`plan`](skills/plan/SKILL.md) | Turns an approved spec into a versioned plan of small tasks, runs them on a feature branch, has the branch reviewed, and closes the feature. | A feature branch with one commit per task. No push, no merge unless you say so. |
 | [`hill-climb`](skills/hill-climb/SKILL.md) | Three independent models review the same target and give it a score. Confirmed findings get fixed. Repeats until all three give 9/10 or the round limit. | A better target and a score table per round. |
 | [`fullsend`](skills/fullsend/SKILL.md) | Runs spec → plan → implement → test → review → simplify → close-out with no check-ins. | A finished feature branch and a report. |
+| [`frontend-design`](skills/frontend-design/SKILL.md) | Anthropic's design skill: deliberate typography, palette and layout instead of templated defaults. Unchanged copy of the official Claude Code plugin v1.1.1. | HTML reports, pages and UI that don't look generic. |
 
 ## Install
 
 ```sh
 git clone https://github.com/1905/public-skills.git
 mkdir -p ~/.claude/skills
-for s in spec plan hill-climb fullsend; do
+for s in spec plan hill-climb fullsend frontend-design; do
   if [ -e "$HOME/.claude/skills/$s" ] && [ ! -L "$HOME/.claude/skills/$s" ]; then
     echo "exists: $s — move it first"; continue
   fi
@@ -25,16 +26,29 @@ done
 
 - **Check:** start a new session and ask the agent to list its skills.
 - **Update:** `git -C public-skills pull`. The symlinks pick up the change.
-- **Uninstall:** delete the four symlinks in `~/.claude/skills/`.
+- **Uninstall:** delete the symlinks in `~/.claude/skills/`.
 - **Per project:** link or copy into the project's `.claude/skills/` instead.
 - **Other hosts:** use that host's skills folder (e.g. `~/.agents/skills/` or `~/.codex/skills/`).
 - Each skill directory is self-contained. It carries its own copy of `delegation.md`, so you can copy one skill alone. `fullsend` needs `spec` and `plan`.
+- Already have the official `frontend-design` plugin (`/plugin`)? Skip it in the loop; it's the same skill.
 
 ## Make them behave as designed: add rules to CLAUDE.md
 
 Much of how these skills behave for the author comes from global rules, not from the skill files. Examples: approve the TL;DR, never commit to the base branch, Opus for code.
 
 Copy the block in [`CLAUDE.snippet.md`](CLAUDE.snippet.md) into `~/.claude/CLAUDE.md` or your project's `CLAUDE.md`. Fill in your base branch, build command and test command. Keep the `[essential]` lines. Choose from the `[optional]` ones.
+
+Add it by hand, or tell your agent: *"Add the rules from public-skills/CLAUDE.snippet.md to my ~/.claude/CLAUDE.md. Ask me for the base branch, build and test commands."*
+
+### HTML reports: always use `frontend-design`
+
+Skills do not trigger on their own reliably. Without a rule, the agent writes generic HTML. Add this line to your CLAUDE.md (by hand, or ask your agent to add it):
+
+```markdown
+- HTML for me (reports, pages, mockups, dashboards, any `.html` file): ALWAYS invoke the `frontend-design` skill first and follow it. Subagents that build HTML get the same instruction in their brief.
+```
+
+It is already in `CLAUDE.snippet.md`.
 
 ## Usage
 
@@ -68,7 +82,6 @@ plans/
 
 - The `plans/` files stay uncommitted until exec starts. Then they are the first commit on the feature branch.
 - If `plans/` is gitignored, the skills skip those commits and say so.
-- If your CLAUDE.md asks for HTML specs and plans, the files are `spec.html` and `plan-vX.Y.html` with the same structure.
 
 ## Models
 
@@ -128,4 +141,4 @@ Some Claude Code versions may have a built-in `/plan` command that takes precede
 
 ## License
 
-MIT
+MIT, except `skills/frontend-design/`: © Anthropic, Apache License 2.0 (see `skills/frontend-design/LICENSE.txt`). Copied unchanged from the official Claude Code `frontend-design` plugin v1.1.1.

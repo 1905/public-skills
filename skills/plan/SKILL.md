@@ -10,8 +10,6 @@ Stages 3-5 of `idea → spec → plan (versioned) → exec → done`. Turns the 
 
 Expects an approved `plans/<feature-dir>/spec.md` from the `spec` skill. No approved spec → run the `spec` skill first. Not installed → ask the user for the requirements, write a `spec.md` with at least `## TL;DR`, `## Goals`, `## File-level changes`, `## Tests`, and get it approved.
 
-**Format:** follows the spec. HTML spec → `plan-vX.Y.html`, same structure.
-
 **Versioning (hard rule):** every plan revision is a NEW file, never an overwrite.
 - `plan-v1.0.md` — first draft
 - `plan-v1.1.md` — after review fixes / small scope tweaks (minor bump)

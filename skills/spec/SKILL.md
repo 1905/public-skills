@@ -18,8 +18,6 @@ plans/
   done/                 # finished features move here wholesale
 ```
 
-**Format:** Markdown by default. If the user's instructions ask for HTML, write `spec.html` (and the plan skill writes `plan-vX.Y.html`): same section names and order, one self-contained file, no `.md` twin. Every `.md` name in these skills then means the `.html` file.
-
 If a dir for the same in-flight effort already exists, continue in it. Otherwise make a new dir (the date tells repeat attempts apart).
 
 **Migrate-on-touch:** if the repo has legacy plan files (loose `PLAN.md`/`*_PLAN.md`/`TODO.md` at root, undated `plans/*.md`), offer the user a one-off sweep into the layout above. Show a dry-run report first: live → dated dir, finished → `plans/done/`, stale → `plans/done/superseded/`, permanent docs → `docs/`. Never migrate silently. Commit an accepted sweep on its own, before any spec work, on the branch the user names.
