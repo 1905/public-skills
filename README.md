@@ -1,5 +1,7 @@
 # public-skills
 
+
+> **Agents:** read [TL;DR for agents](#tldr-for-agents) and follow it.
 Agent skills for planned, reviewed feature work: write a spec, plan it, build it on a branch, and have independent models review it. Plus Anthropic's `frontend-design` skill for HTML reports and pages.
 They are written for Claude Code and work in other hosts that read `SKILL.md` files.
 
@@ -11,26 +13,69 @@ They are written for Claude Code and work in other hosts that read `SKILL.md` fi
 | [`fullsend`](skills/fullsend/SKILL.md) | Runs spec → plan → implement → test → review → simplify → close-out with no check-ins. | A finished feature branch and a report. |
 | [`frontend-design`](skills/frontend-design/SKILL.md) | Anthropic's design skill: deliberate typography, palette and layout instead of templated defaults. Unchanged copy of the official Claude Code plugin v1.1.1. | HTML reports, pages and UI that don't look generic. |
 
+## TL;DR for agents
+
+You are probably an AI agent installing this for your user. Do this:
+
+1. Clone to a stable path (the symlinks point here; don't use a temp dir):
+   `git clone https://github.com/1905/public-skills.git ~/public-skills` (or a path the user names).
+2. Dry run: `python3 ~/public-skills/install.py`. It finds every skills folder on this machine:
+   - Claude Code: `~/.claude/skills`, and `$CLAUDE_CONFIG_DIR/skills` if set.
+   - **T3 Code:** every enabled Claude provider instance with its own config dir (`homePath` or `CLAUDE_CONFIG_DIR` in `~/.t3/userdata/settings.json`) → `<config dir>/skills`. Each instance loads skills only from its own config dir, so `~/.claude/skills` alone is not enough.
+   - Codex, OpenCode and other Agent Skills hosts: `~/.agents/skills`.
+   - Antigravity: `~/.gemini/config/skills`.
+3. Show the user the dry-run output. If it lists conflicts (`✗`), ask: move the existing item, or skip it. Never delete the user's files.
+4. Install: `python3 ~/public-skills/install.py --apply`. It only creates symlinks. It never replaces anything.
+5. Rules: show the user [`CLAUDE.snippet.md`](CLAUDE.snippet.md). Ask for their base branch, build command and test command, and which `[optional]` lines they want. With their OK, append the block to each instruction file the installer listed (`CLAUDE.md` per Claude config dir; `~/.codex/AGENTS.md` for Codex). Remove the `[essential]`/`[optional]` tags.
+6. Tell the user to restart their agent sessions (in T3 Code: start a new thread) so the skills load.
+
+Options: `--skills spec plan` installs a subset. `--target <dir>` adds another skills folder. Update later with `git -C ~/public-skills pull`.
+
 ## Install
 
+**Recommended:** run the installer (see the TL;DR above). It finds Claude Code, T3 Code, Codex, OpenCode and Antigravity skills folders, shows a dry run, and creates symlinks with `--apply`.
+
 ```sh
-git clone https://github.com/1905/public-skills.git
+git clone https://github.com/1905/public-skills.git ~/public-skills
+python3 ~/public-skills/install.py          # dry run
+python3 ~/public-skills/install.py --apply  # install
+```
+
+**Manual, Claude Code only:**
+
+```sh
 mkdir -p ~/.claude/skills
 for s in spec plan hill-climb fullsend frontend-design; do
   if [ -e "$HOME/.claude/skills/$s" ] && [ ! -L "$HOME/.claude/skills/$s" ]; then
     echo "exists: $s — move it first"; continue
   fi
-  ln -sfn "$PWD/public-skills/skills/$s" "$HOME/.claude/skills/$s"
+  ln -sfn "$HOME/public-skills/skills/$s" "$HOME/.claude/skills/$s"
 done
 ```
 
+### T3 Code
+
+T3 Code runs Claude Code, Codex and other agents as providers. Each provider loads skills from its own folder:
+
+| Provider in T3 Code | Skills folder |
+|---|---|
+| Claude, default instance | `~/.claude/skills` |
+| Claude, instance with its own config dir (the instance's home path setting, or a `CLAUDE_CONFIG_DIR` env var) | `<that dir>/skills` — and its `CLAUDE.md` lives there too |
+| Codex | `~/.agents/skills` |
+| OpenCode | reads `~/.claude/skills` and `~/.agents/skills` |
+| Antigravity | `~/.gemini/config/skills` |
+
+- Install globally. T3 Code may not show repo-local skills (`<repo>/.claude/skills`, `<repo>/.agents/skills`) in its skill picker, because its server can run from your home directory instead of the project (see [t3code#3040](https://github.com/pingdotgg/t3code/issues/3040)).
+- T3 Code gives `hill-climb` the full council: it can start reviewers on other providers (Codex, Antigravity, OpenCode) with exact models and effort.
+- New skills load in new threads.
+
+### Other notes
+
 - **Check:** start a new session and ask the agent to list its skills.
-- **Update:** `git -C public-skills pull`. The symlinks pick up the change.
-- **Uninstall:** delete the symlinks in `~/.claude/skills/`.
-- **Per project:** link or copy into the project's `.claude/skills/` instead.
-- **Other hosts:** use that host's skills folder (e.g. `~/.agents/skills/` or `~/.codex/skills/`).
+- **Update:** `git -C ~/public-skills pull`. The symlinks pick up the change.
+- **Uninstall:** delete the symlinks the installer created.
 - Each skill directory is self-contained. It carries its own copy of `delegation.md`, so you can copy one skill alone. `fullsend` needs `spec` and `plan`.
-- Already have the official `frontend-design` plugin (`/plugin`)? Skip it in the loop; it's the same skill.
+- Already have the official `frontend-design` plugin? The installer skips it for that Claude config dir; it's the same skill.
 
 ## Make them behave as designed: add rules to CLAUDE.md
 
