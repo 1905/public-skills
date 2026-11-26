@@ -1,6 +1,6 @@
 ---
 name: hill-climb
-description: "Improve a target through repeated rounds of three independent model reviews: score, verify findings, fix, repeat. Use for hill climb, hill-climb, heavy hill climb, council review, or requested review-and-fix rounds. Do not start a council when the request is only to inspect or edit this skill."
+description: "Improve a target through repeated rounds of three independent model reviews: score, verify findings, fix, repeat. Normal council: Opus 5.5 + Sol 6.2 + Gemini 4 Neon. Heavy: Fable 5.2 + Astra 6.2 + Neon, all xhigh. Each model if available, else the closest one you have. Use for hill climb, hill-climb, heavy hill climb, council review, or requested review-and-fix rounds. Do not start a council when the request is only to inspect or edit this skill."
 argument-hint: "[heavy] <target: path | diff | feature> [goal] [rounds N] [score N] [effort LEVEL]"
 metadata:
   version: "1.0.0"
@@ -23,19 +23,24 @@ Input: `$ARGUMENTS` and the user's request.
 
 ## 2. Pick the council
 
-Use three reviewers from **different model families or providers** when you can. Different models miss different things; three copies of one model mostly agree with each other.
+Use three reviewers from **different model families or providers**. Different models miss different things; three copies of one model mostly agree with each other.
 
-| Mode | Reviewer A | Reviewer B | Reviewer C |
+| Mode | Claude reviewer | Codex reviewer | Gemini reviewer |
 |---|---|---|---|
-| Normal | strong Claude model, `high` | strong model from a second provider, `high` | model from a third provider (or a second Claude/other model), `high` |
-| Heavy | your strongest model, `xhigh` | strongest model from a second provider, `xhigh` | third reviewer, `xhigh` |
+| Normal | Opus 5.5, `high` | Sol 6.2 (`gpt-6.2-sol`), `high` | Gemini 4 Neon, `xhigh` |
+| Heavy | Fable 5.2, `xhigh` | Astra 6.2 (`gpt-6.2-astra`), `xhigh` | Gemini 4 Neon, `xhigh` |
 
-Edit this table to pin your own models. The user can name models in the request; those win.
+Use each model **if available** to you. If one is not:
+- Use the strongest model you have from the same provider (e.g. another Claude model for Opus 5.5).
+- No access to that provider at all → use the strongest model from another provider you have, so the council keeps three different models where possible.
+- Name every substitution in the report. Never present a substitute as the model in the table.
+
+The user can name models in the request; those win.
 
 Rules:
-- Copy exact model IDs from the live catalog. Display names are not model IDs.
-- Set effort through the tool's advertised option, not through prompt text. Never silently lower a requested effort.
-- An explicit `effort LEVEL` applies to every reviewer.
+- Copy exact model IDs from the live catalog. Display names are not model IDs. Neon can be on several providers (e.g. Antigravity, OpenCode, OpenRouter); pick one that can run child tasks.
+- Set effort through the tool's advertised option (e.g. `effort`, `reasoningEffort`, `thought_level`), not through prompt text. Never silently lower a requested effort.
+- An explicit `effort LEVEL` changes only the normal-mode Claude and Codex reviewers. Neon stays at `xhigh`.
 - Do not pick heavy mode just because a task looks hard.
 - Check the provider and model each task reports. A mismatch is a failed review; never accept its score.
 
@@ -48,7 +53,7 @@ See `docs/delegation.md` in this repo.
 
 ### Heavy fallback
 
-If a heavy model is unavailable or can't run at `xhigh`, switch the **whole council** to normal mode and say which requirement was missing. Do not mix heavy and normal reviewers. Do not compare scores across councils.
+If Fable 5.2 or Astra 6.2 is unavailable or can't run at `xhigh`, switch the **whole council** to normal mode (Opus 5.5 + Sol 6.2 + Neon) and say which requirement was missing. Do not mix heavy and normal reviewers. Do not compare scores across councils.
 
 A timeout alone does not mean a model is unavailable — keep waiting on that task.
 If a required reviewer can't run at all, stop with `council unavailable`. Never pass with fewer than three valid reviews.
@@ -109,7 +114,7 @@ Use "FINDINGS: none" when there are no findings.
 - All three actual models and effort levels.
 - One row per round:
 
-| Round / mode | Reviewer A model / score | Reviewer B model / score | Reviewer C model / score | Council score | Changes |
+| Round / mode | Claude model / score | Codex model / score | Gemini model / score | Council score | Changes |
 |---|---|---|---|---|---|
 
 - Confirmed findings still open, notable false positives, validation limits.

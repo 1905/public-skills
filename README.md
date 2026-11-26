@@ -26,7 +26,10 @@ You can also install them per project, in `.claude/skills/`.
 - **Subagents.** The skills hand drafting, implementing and reviewing to subagents. See [`docs/delegation.md`](docs/delegation.md).
   - T3 Code `delegate_task` works best. It can pick an exact model and effort for each child.
   - Without T3 Code, the skills use the host's native subagent tool.
-- **Several model providers (optional).** `hill-climb` works best with three reviewers from different providers. Change the council table in `hill-climb/SKILL.md` to use your own models.
+- **Several model providers (optional).** `hill-climb` uses three reviewers from different providers:
+  - Normal: Opus 5.5 + Sol 6.2 + Gemini 4 Neon.
+  - Heavy: Fable 5.2 + Astra 6.2 + Gemini 4 Neon, all at `xhigh`.
+  - If you don't have one of these models, the skill uses the closest model you have and names the substitution in the report.
 - **Optional skills that the steps mention:** a plain-English/controlled-language pass for plans, `/simplify`, `/loop` and a notification skill. If you don't have one of these, the step that uses it is skipped.
 
 ## Workflow
