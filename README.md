@@ -1,7 +1,7 @@
 # public-skills
 
-
 > **Agents:** read [TL;DR for agents](#tldr-for-agents) and follow it.
+
 Agent skills for planned, reviewed feature work: write a spec, plan it, build it on a branch, and have independent models review it. Plus Anthropic's `frontend-design` skill for HTML reports and pages.
 They are written for Claude Code and work in other hosts that read `SKILL.md` files.
 
